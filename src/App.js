@@ -1,5 +1,5 @@
-import React, { Component } from 'react';
-import { Link } from "react-router-dom";
+import React, { Component, Fragment } from "react";
+import { withRouter } from "react-router-dom";
 import { Nav, Navbar, NavItem } from "react-bootstrap";
 // Unfortunately, when you click on them they refresh your browser while redirecting to the link. 
 // We need it to route it to the new link without refreshing the page since we are building a single page app.
@@ -7,34 +7,73 @@ import { Nav, Navbar, NavItem } from "react-bootstrap";
 // It can wrap around your Navbar links and use the React Router to route your app to the required link without refreshing the browser.
 import { LinkContainer } from "react-router-bootstrap";
 import Routes from "./Routes";
-import './App.css';
+import { auth } from "./firebase"
+import "./App.css";
 
 class App extends Component {
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      userName: '',
+      isAuthenticated: false
+    };
+  }
+
+  componentDidMount() {
+    auth.onAuthStateChanged((user) => {
+      if (user) {
+        this.setState({ isAuthenticated: true });
+      }
+    });
+  }
+
+  userHasAuthenticated = (userName, authenticated) => {
+    this.setState({ userName: userName, isAuthenticated: authenticated });
+  }
+
+  handleLogout = event => {
+    auth.signOut();
+    this.userHasAuthenticated('', false);
+    this.props.history.push("/login");
+  }
+
   render() {
+    const childProps = {
+      userName: this.state.userName,
+      isAuthenticated: this.state.isAuthenticated,
+      userHasAuthenticated: this.userHasAuthenticated
+    };
+
     return (
       <div className="App container">
         <Navbar fluid collapseOnSelect>
           <Navbar.Header>
             <Navbar.Brand>
-              <Link to="/">react-login</Link>
+              <div>react-login</div>
             </Navbar.Brand>
             <Navbar.Toggle />
           </Navbar.Header>
           <Navbar.Collapse>
             <Nav pullRight>
-              <LinkContainer to="/signup">
-                <NavItem>Signup</NavItem>
-              </LinkContainer>
-              <LinkContainer to="/login">
-                <NavItem>Login</NavItem>
-              </LinkContainer>
+              {this.state.isAuthenticated
+                ? <NavItem onClick={this.handleLogout}>Logout</NavItem>
+                : <Fragment>
+                  <LinkContainer to="/signup">
+                    <NavItem>Signup</NavItem>
+                  </LinkContainer>
+                  <LinkContainer to="/login">
+                    <NavItem>Login</NavItem>
+                  </LinkContainer>
+                </Fragment>
+              }
             </Nav>
           </Navbar.Collapse>
         </Navbar>
-        <Routes />
+        <Routes childProps={childProps} />
       </div>
     );
   }
 }
 
-export default App;
+export default withRouter(App);

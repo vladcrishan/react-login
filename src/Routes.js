@@ -1,8 +1,18 @@
 import React from "react";
 import { Route, Switch } from "react-router-dom";
-import Home from "./containers/Home";
+import AppliedRoute from "./components/AppliedRoute";
 
-export default () =>
+import Home from "./containers/Home";
+import Login from "./containers/Login";
+import Signup from "./containers/Signup";
+import NotFound from "./containers/NotFound";
+
+export default ({ childProps }) =>
     <Switch>
-        <Route path="/" exact component={Home} />
+        <AppliedRoute path="/" exact component={Login} props={childProps} />
+        <AppliedRoute path="/login" exact component={Login} props={childProps} />
+        <AppliedRoute path="/signup" exact component={Signup} props={childProps} />
+        <AppliedRoute path="/home" exact component={Home} props={childProps} />
+        { /* Finally, catch all unmatched routes */}
+        <Route component={NotFound} />
     </Switch>;

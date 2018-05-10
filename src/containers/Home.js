@@ -6,8 +6,8 @@ export default class Home extends Component {
         return (
             <div className="Home">
                 <div className="lander">
-                    <h1>react-login</h1>
-                    <p>A simple app that handles login with firebase</p>
+                    <h1>React Login with Firebase</h1>
+                    <p>you are logged in as <b>{this.props.userName}</b></p>
                 </div>
             </div>
         );
